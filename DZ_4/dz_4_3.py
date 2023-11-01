@@ -39,41 +39,50 @@ operations = []
 
 
 def check_multiplicity(amount):
-    return amount % MULTIPLICITY == 0
+    """Проверка кратности суммы"""
+    if (amount % MULTIPLICITY) != 0:
+        print(f'Сумма должна быть кратной {MULTIPLICITY} у.е.')
+        return False
+    return True
 
 
 def deposit(amount):
+    """Пополнение счета"""
+    global bank_account, count
     if not check_multiplicity(amount):
-        print(
-            f"Сумма должна быть кратной {MULTIPLICITY} у.е.")
-        return
-    else:  # amount кратна MULTIPLICITY
-        global bank_account
-        bank_account += amount
-        operations.append(
-            f"Пополнение карты на {amount} у.е. Итого {bank_account} у.е.")  # запись в список операций
+        print(f'Сумма должна быть кратной {MULTIPLICITY} у.е.')
+        return False  # Операция не выполнена из-за некратной суммы
+    count += 1
+    bank_account += amount
+    operations.append(
+        f'Пополнение карты на {amount} у.е. Итого {bank_account} у.е.')
+    return True
 
 
 def withdraw(amount):
-    if not check_multiplicity(amount):
-        print(
-            f"Снятие суммы {amount} невозможно, сумма не кратна {MULTIPLICITY}")
-        return
+    """Снятие денег"""
+    global bank_account, count
+    percent = amount * PERCENT_REMOVAL
+    percent = MIN_REMOVAL if percent < MIN_REMOVAL else MAX_REMOVAL if percent > MAX_REMOVAL else percent
+    if bank_account >= amount + percent:
+        count += 1
+        bank_account = bank_account - amount - percent
+        operations.append(
+            f'Снятие с карты {amount} у.е. Процент за снятие {int(percent)} у.е.. Итого {int(bank_account)} у.е.')
+    else:
+        operations.append(
+            f'Недостаточно средств. Сумма с комиссией {amount + int(percent)} у.е. На карте {int(bank_account)} у.е.')
 
-    if amount < MIN_REMOVAL or amount > MAX_REMOVAL:
-        print(
-            f"Сумма снятия {amount} должна быть между {MIN_REMOVAL} и {MAX_REMOVAL}")
-        return
-    global bank_account
 
-
-def exit():  # завершение работы с банковским счетом
-    global bank_account
-    global count
-    global operations
-
+def exit():
+    global bank_account, operations
     if bank_account > RICHNESS_SUM:
-        bank_account = bank_account * (1 + RICHNESS_PERCENT)
+        percent = bank_account * RICHNESS_PERCENT
+        bank_account -= percent
+        operations.append(
+            f'Вычтен налог на богатство {RICHNESS_PERCENT}% в сумме {percent} у.е. Итого {bank_account} у.е.')
+    operations.append(f'Возьмите карту на которой {bank_account} у.е.')
+
 
 
 deposit(1000)
