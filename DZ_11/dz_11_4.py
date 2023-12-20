@@ -1,4 +1,4 @@
-'''Задача о матричных операциях (нужно разобраться с пробелами)
+'''Задача о матричных операциях
 
 Разработать класс Matrix, представляющий матрицу и обеспечивающий базовые
 операции с матрицами.
@@ -41,42 +41,28 @@ class Matrix:
         self.data = [[0 for _ in range(cols)] for _ in range(rows)]
 
     def __str__(self):
-        matrix_str = ""
-        for row in self.data:
-            matrix_str += " ".join(map(str, row)) + "\n"
-        return matrix_str
+        return '\n'.join([' '.join(map(str, row)) for row in self.data])
 
     def __repr__(self):
-        return f'Matrix({self.rows}, {self.cols})'
-
-    def __eq__(self, other):
-        if self.rows != other.rows or self.cols != other.cols:
-            return False
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.data[i][j] != other.data[i][j]:
-                    return False
-        return True
+        return f"Matrix({self.rows}, {self.cols}, {self.data})"
 
     def __add__(self, other):
-        if self.rows != other.rows or self.cols != other.cols:
-            raise ValueError(
-                "Matrices must have the same dimensions for addition")
-        result = Matrix(self.rows, self.cols)
-        for i in range(self.rows):
-            for j in range(self.cols):
-                result.data[i][j] = self.data[i][j] + other.data[i][j]
-        return result
+        if self.rows == other.rows and self.cols == other.cols:
+            result = Matrix(self.rows, self.cols)
+            result.data = [
+                [self.data[i][j] + other.data[i][j] for j in range(self.cols)]
+                for i in range(self.rows)]
+            return result
+        else:
+            raise ValueError("Матрицы разных размеров нельзя сложить!")
 
     def __mul__(self, other):
         if self.cols != other.rows:
-            raise ValueError(
-                "Number of columns in the first matrix must be equal to the number of rows in the second matrix for multiplication")
+            raise ValueError("Нельзя умножить матрицы с данными размерами!")
         result = Matrix(self.rows, other.cols)
-        for i in range(self.rows):
-            for j in range(other.cols):
-                for k in range(self.cols):
-                    result.data[i][j] += self.data[i][k] * other.data[k][j]
+        result.data = [
+            [sum(self.data[i][k] * other.data[k][j] for k in range(self.cols))
+             for j in range(other.cols)] for i in range(self.rows)]
         return result
 
 matrix3 = Matrix(3, 2)
